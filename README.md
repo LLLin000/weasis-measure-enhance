@@ -116,7 +116,7 @@ After loading the plugin, new measurement tools will appear in the measurement t
 2. **Continue Line**: Draw a line and automatically extend it by the same length
 
 **Toolbar Buttons:**
-3. **∠ (Angle Calculation)**: Select 2 lines (Ctrl+Click), then click the button to calculate the angle between them
+3. **∠ (Angle Calculation)**: Select 2 lines (Shift+Click), then click the button to calculate the angle between them
 4. **⊥ (Perpendicular Bisector)**: Select a line, then click the button to draw its perpendicular bisector
 5. **⊥d (Perpendicular Distance)**: Select a line, then after clicking the button, click another point to measure the perpendicular distance
 
@@ -268,9 +268,9 @@ weasis $weasis:config pro="felix.extended.config.properties file:///path/to/mypl
 
 **工具栏按钮：**
 
-3. **∠ (角度计算)**: 选中2条线段（Ctrl+点击多选），然后点击按钮计算夹角
-4. **⊥ (垂直平分线)**: 选中一条线段，然后点击按钮绘制垂直平分线
-5. **⊥d (垂直距离)**: 选中一条线段，然后点击按钮后点击一点来测量垂直距离
+3. **∠ (角度计算)**: 选中2条线段（Shift+点击多选），然后点击按钮计算夹角
+5. **⊥ (垂直平分线)**: 选中一条线段，然后点击按钮绘制垂直平分线
+6. **⊥d (垂直距离)**: 选中一条线段，然后点击按钮后点击一点来测量垂直距离
 
 ### 许可证
 
