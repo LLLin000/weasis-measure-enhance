@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.mycompany</groupId>
+    <artifactId>weasis-measure-enhance</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Weasis Measure Enhance Plugin</name>
+    <description>Enhanced measurement tools for Weasis medical imaging viewer</description>
+    <url>https://github.com/YOUR_USERNAME/weasis-measure-enhance</url>
+
+    <licenses>
+        <license>
+            <name>Eclipse Public License 2.0</name>
+            <url>https://www.eclipse.org/legal/epl-2.0/</url>
+        </license>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <weasis.version>4.5.0</weasis.version>
+        <osgi.version>8.0.0</osgi.version>
+        <osgi.comp.version>1.5.1</osgi.comp.version>
+        <bnd.version>7.0.0</bnd.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.weasis.core</groupId>
+            <artifactId>weasis-core</artifactId>
+            <version>${weasis.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.core</artifactId>
+            <version>${osgi.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.service.component.annotations</artifactId>
+            <version>${osgi.comp.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>mvn-repo-master</id>
+            <url>https://raw.github.com/nroduit/mvn-repo/master/</url>
+        </repository>
+        <repository>
+            <id>weasis-repo</id>
+            <name>Weasis Repository</name>
+            <url>https://weasis.repositoryhosting.com/maven2</url>
+        </repository>
+        <repository>
+            <id>dcm4che-repo</id>
+            <name>dcm4che Repository</name>
+            <url>https://www.dcm4che.org/maven2</url>
+        </repository>
+    </repositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.11.0</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-maven-plugin</artifactId>
+                <version>${bnd.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <bnd>
+                        Bundle-SymbolicName: ${project.artifactId}
+                        Bundle-Activator: com.mycompany.weasis.measure.enhance.MeasureEnhanceFactory
+                        Export-Package: com.mycompany.weasis.measure.enhance.*
+                        Import-Package: org.slf4j;version=!,*
+                        Require-Capability: osgi.ee;filter:="(&amp;(osgi.ee=JavaSE)(version>=17))"
+                    </bnd>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>bnd-process</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
