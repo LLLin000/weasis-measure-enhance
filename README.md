@@ -34,13 +34,32 @@ Special thanks to:
 
 ### Installation
 
-#### Method 1: Download Pre-built JAR (Recommended)
+#### Method 1: One-Click Install (Windows - Recommended) ⭐
+
+The easiest way to install this plugin:
+
+1. Go to [Releases](../../releases) page
+2. Download both:
+   - `weasis-measure-enhance-1.0.0-SNAPSHOT.jar`
+   - `install-plugin.bat`
+3. Put them in the same folder
+4. Double-click `install-plugin.bat`
+5. Done! A desktop shortcut will be created automatically
+
+> 💡 **What the installer does:**
+> - Creates a configuration file in `%USERPROFILE%\.weasis-plugins\`
+> - Generates a launcher script
+> - Creates a desktop shortcut for easy access
+>
+> To uninstall, simply delete the `.weasis-plugins` folder in your user directory.
+
+#### Method 2: Download Pre-built JAR (Manual Setup)
 
 1. Go to [Releases](../../releases) page
 2. Download `weasis-measure-enhance-1.0.0-SNAPSHOT.jar`
 3. Follow the "Loading the Plugin" instructions below
 
-#### Method 2: Build from Source
+#### Method 3: Build from Source
 
 > ⚠️ **Prerequisites:** Building from source requires [Weasis source code](https://github.com/nroduit/Weasis) to be cloned and built first, as this plugin depends on `weasis-parent`.
 
@@ -185,13 +204,32 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ### 安装方法
 
-#### 方法一：下载预编译 JAR（推荐）
+#### 方法一：一键安装（Windows 推荐）⭐
+
+最简单的安装方式：
+
+1. 访问 [Releases](../../releases) 页面
+2. 下载以下两个文件：
+   - `weasis-measure-enhance-1.0.0-SNAPSHOT.jar`
+   - `install-plugin.bat`
+3. 把它们放在同一个文件夹里
+4. 双击运行 `install-plugin.bat`
+5. 完成！桌面会自动创建启动快捷方式
+
+> 💡 **安装脚本会自动完成以下操作：**
+> - 在 `%USERPROFILE%\.weasis-plugins\` 创建配置文件
+> - 生成启动脚本
+> - 在桌面创建快捷方式
+>
+> 如需卸载，删除用户目录下的 `.weasis-plugins` 文件夹即可。
+
+#### 方法二：下载预编译 JAR（手动配置）
 
 1. 访问 [Releases](../../releases) 页面
 2. 下载 `weasis-measure-enhance-1.0.0-SNAPSHOT.jar`
-3. 按照下方“加载插件”的说明操作
+3. 按照下方"加载插件"的说明操作
 
-#### 方法二：从源码编译
+#### 方法三：从源码编译
 
 > ⚠️ **前提条件：** 从源码编译需要先克隆并编译 [Weasis 源码](https://github.com/nroduit/Weasis)，因为本插件依赖 `weasis-parent`。
 
