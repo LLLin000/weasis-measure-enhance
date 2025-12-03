@@ -53,12 +53,12 @@ echo.
 :: ----------------------------------------------------------------------------
 :: 优先查找 target/ 目录（Maven 编译输出）
 :: First check target/ directory (Maven build output)
-set "JAR_FILE=%SCRIPT_DIR%\target\weasis-measure-enhance-1.0.0-SNAPSHOT.jar"
+set "JAR_FILE=%SCRIPT_DIR%\target\weasis-measure-enhance-fixed-1.0.0.jar"
 
 if not exist "%JAR_FILE%" (
     :: 如果 target/ 中没有，查找当前目录（用户可能直接下载了 JAR）
     :: If not in target/, check current directory (user may have downloaded JAR directly)
-    set "JAR_FILE=%SCRIPT_DIR%\weasis-measure-enhance-1.0.0-SNAPSHOT.jar"
+    set "JAR_FILE=%SCRIPT_DIR%\weasis-measure-enhance-fixed-1.0.0.jar"
 )
 
 if not exist "%JAR_FILE%" (
@@ -66,8 +66,8 @@ if not exist "%JAR_FILE%" (
     echo.
     echo 请确保 JAR 文件在以下位置之一:
     echo Please ensure the JAR file is in one of these locations:
-    echo   - %SCRIPT_DIR%\target\weasis-measure-enhance-1.0.0-SNAPSHOT.jar
-    echo   - %SCRIPT_DIR%\weasis-measure-enhance-1.0.0-SNAPSHOT.jar
+    echo   - %SCRIPT_DIR%\target\weasis-measure-enhance-fixed-1.0.0.jar
+    echo   - %SCRIPT_DIR%\weasis-measure-enhance-fixed-1.0.0.jar
     echo.
     echo 您可以从 GitHub Releases 下载:
     echo You can download from GitHub Releases:
