@@ -20,6 +20,8 @@ import org.weasis.core.ui.editor.image.ViewerPlugin;
 import org.weasis.core.ui.model.graphic.Graphic;
 import org.weasis.core.ui.model.layer.LayerType;
 import org.weasis.core.ui.util.Toolbar;
+import org.weasis.dicom.codec.DicomImageElement;
+import org.weasis.dicom.viewer2d.EventManager;
 
 public class MeasureEnhanceFactory implements BundleActivator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MeasureEnhanceFactory.class);
@@ -27,6 +29,7 @@ public class MeasureEnhanceFactory implements BundleActivator {
     private JButton calcAngleButton;
     private JButton perpBisectorButton;
     private JButton perpDistanceButton;
+    private JButton parallelLineButton;
     private Timer retryTimer;
 
     @Override
@@ -93,8 +96,16 @@ public class MeasureEnhanceFactory implements BundleActivator {
                                     perpDistanceButton.addActionListener(e -> onPerpDistanceClick());
                                     measureToolBar.add(perpDistanceButton);
                                     
+                                    // Add parallel line button
+                                    parallelLineButton = new JButton("//");
+                                    parallelLineButton.setToolTipText("Create parallel line from selected line (可拖动调整距离)");
+                                    parallelLineButton.setFont(parallelLineButton.getFont().deriveFont(14f));
+                                    parallelLineButton.addActionListener(e -> onParallelLineClick());
+                                    measureToolBar.add(parallelLineButton);
+                                    
                                     measureToolBar.revalidate();
-                                    LOGGER.info("Added angle calculation and perpendicular bisector buttons to MeasureToolBar");
+                                    measureToolBar.repaint();
+                                    LOGGER.info("Added all measure enhance buttons to MeasureToolBar");
                                 }
                                 return true;
                             }
@@ -110,17 +121,12 @@ public class MeasureEnhanceFactory implements BundleActivator {
     
     private void onCalcAngleClick() {
         try {
-            List<ViewerPlugin<?>> plugins = GuiUtils.getUICore().getViewerPlugins();
-            for (ViewerPlugin<?> plugin : plugins) {
-                if (plugin instanceof ImageViewerPlugin<?> imagePlugin) {
-                    ViewCanvas<?> view = imagePlugin.getSelectedImagePane();
-                    if (view != null) {
-                        AngleCalculationAction.calculateAngle(view);
-                        return;
-                    }
-                }
+            ViewCanvas<?> view = getActiveViewCanvas();
+            if (view != null) {
+                AngleCalculationAction.calculateAngle(view);
+            } else {
+                JOptionPane.showMessageDialog(null, "No active view found.", "Angle Calculation", JOptionPane.WARNING_MESSAGE);
             }
-            JOptionPane.showMessageDialog(null, "No active view found.", "Angle Calculation", JOptionPane.WARNING_MESSAGE);
         } catch (Exception e) {
             LOGGER.error("Error calculating angle", e);
             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Angle Calculation", JOptionPane.ERROR_MESSAGE);
@@ -129,17 +135,12 @@ public class MeasureEnhanceFactory implements BundleActivator {
     
     private void onPerpBisectorClick() {
         try {
-            List<ViewerPlugin<?>> plugins = GuiUtils.getUICore().getViewerPlugins();
-            for (ViewerPlugin<?> plugin : plugins) {
-                if (plugin instanceof ImageViewerPlugin<?> imagePlugin) {
-                    ViewCanvas<?> view = imagePlugin.getSelectedImagePane();
-                    if (view != null) {
-                        PerpendicularBisectorAction.drawPerpendicularBisector(view);
-                        return;
-                    }
-                }
+            ViewCanvas<?> view = getActiveViewCanvas();
+            if (view != null) {
+                PerpendicularBisectorAction.drawPerpendicularBisector(view);
+            } else {
+                JOptionPane.showMessageDialog(null, "No active view found.", "Perpendicular Bisector", JOptionPane.WARNING_MESSAGE);
             }
-            JOptionPane.showMessageDialog(null, "No active view found.", "Perpendicular Bisector", JOptionPane.WARNING_MESSAGE);
         } catch (Exception e) {
             LOGGER.error("Error drawing perpendicular bisector", e);
             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Perpendicular Bisector", JOptionPane.ERROR_MESSAGE);
@@ -148,21 +149,75 @@ public class MeasureEnhanceFactory implements BundleActivator {
     
     private void onPerpDistanceClick() {
         try {
-            List<ViewerPlugin<?>> plugins = GuiUtils.getUICore().getViewerPlugins();
-            for (ViewerPlugin<?> plugin : plugins) {
-                if (plugin instanceof ImageViewerPlugin<?> imagePlugin) {
-                    ViewCanvas<?> view = imagePlugin.getSelectedImagePane();
-                    if (view != null) {
-                        PerpendicularDistanceAction.startMeasurement(view);
-                        return;
-                    }
-                }
+            ViewCanvas<?> view = getActiveViewCanvas();
+            if (view != null) {
+                PerpendicularDistanceAction.startMeasurement(view);
+            } else {
+                JOptionPane.showMessageDialog(null, "No active view found.", "Perpendicular Distance", JOptionPane.WARNING_MESSAGE);
             }
-            JOptionPane.showMessageDialog(null, "No active view found.", "Perpendicular Distance", JOptionPane.WARNING_MESSAGE);
         } catch (Exception e) {
             LOGGER.error("Error measuring perpendicular distance", e);
             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Perpendicular Distance", JOptionPane.ERROR_MESSAGE);
         }
+    }
+    
+    private void onParallelLineClick() {
+        try {
+            ViewCanvas<?> view = getActiveViewCanvas();
+            if (view != null) {
+                ParallelLineAction.createParallelLine(view);
+            } else {
+                JOptionPane.showMessageDialog(null, "No active view found.", "Create Parallel Line", JOptionPane.WARNING_MESSAGE);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error creating parallel line", e);
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Create Parallel Line", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    /**
+     * Get the currently active/focused view canvas.
+     * This correctly handles multiple patient windows by using EventManager.
+     */
+    private ViewCanvas<?> getActiveViewCanvas() {
+        // First try to get from EventManager (handles DICOM viewer correctly)
+        try {
+            ImageViewerPlugin<DicomImageElement> container = EventManager.getInstance().getSelectedView2dContainer();
+            if (container != null) {
+                ViewCanvas<DicomImageElement> view = container.getSelectedImagePane();
+                if (view != null) {
+                    return view;
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.debug("Could not get view from EventManager: {}", e.getMessage());
+        }
+        
+        // Fallback: iterate through plugins and find the one with focus
+        List<ViewerPlugin<?>> plugins = GuiUtils.getUICore().getViewerPlugins();
+        for (ViewerPlugin<?> plugin : plugins) {
+            if (plugin instanceof ImageViewerPlugin<?> imagePlugin) {
+                // Check if this plugin has focus
+                if (imagePlugin.isShowing() && imagePlugin.hasFocus()) {
+                    ViewCanvas<?> view = imagePlugin.getSelectedImagePane();
+                    if (view != null) {
+                        return view;
+                    }
+                }
+            }
+        }
+        
+        // Last resort: return any available view (original behavior)
+        for (ViewerPlugin<?> plugin : plugins) {
+            if (plugin instanceof ImageViewerPlugin<?> imagePlugin) {
+                ViewCanvas<?> view = imagePlugin.getSelectedImagePane();
+                if (view != null) {
+                    return view;
+                }
+            }
+        }
+        
+        return null;
     }
 
     private void safeAddTool(List<Graphic> list, Graphic graphic) {

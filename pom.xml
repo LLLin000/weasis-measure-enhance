@@ -12,11 +12,11 @@
     </parent>
 
     <groupId>com.mycompany</groupId>
-    <artifactId>weasis-measure-enhance</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <artifactId>weasis-measure-enhance-fixed</artifactId>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>Weasis Measure Enhance Plugin</name>
+    <name>Weasis Measure Enhance Plugin (Fixed)</name>
 
     <properties>
         <weasis.version>4.6.6-SNAPSHOT</weasis.version>
@@ -30,6 +30,18 @@
         <dependency>
             <groupId>org.weasis.core</groupId>
             <artifactId>weasis-core</artifactId>
+            <version>${weasis.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.weasis.dicom</groupId>
+            <artifactId>weasis-dicom-viewer2d</artifactId>
+            <version>${weasis.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.weasis.dicom</groupId>
+            <artifactId>weasis-dicom-codec</artifactId>
             <version>${weasis.version}</version>
             <scope>provided</scope>
         </dependency>
