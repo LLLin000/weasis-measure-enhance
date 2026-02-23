@@ -9,14 +9,25 @@
         <groupId>org.weasis</groupId>
         <artifactId>weasis-parent</artifactId>
         <version>4.6.6-SNAPSHOT</version>
+        <relativePath>../Weasis/weasis-parent/pom.xml</relativePath>
     </parent>
 
+<<<<<<< HEAD
     <groupId>com.mycompany</groupId>
     <artifactId>weasis-measure-enhance-fixed</artifactId>
     <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>Weasis Measure Enhance Plugin (Fixed)</name>
+=======
+    <groupId>com.weasis.plugin</groupId>
+    <artifactId>weasis-editable-pr</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>Weasis Editable PR Plugin</name>
+    <description>Makes DICOM Presentation State graphics editable (unlocks saved measurements)</description>
+>>>>>>> 89cfa31 (chore(editable-pr): update factory and circle-center cross sizing; sync pom for plugin update)
 
     <properties>
         <weasis.version>4.6.6-SNAPSHOT</weasis.version>
@@ -91,8 +102,8 @@
                 <configuration>
                     <bnd>
                         Bundle-SymbolicName: ${project.artifactId}
-                        Bundle-Activator: com.mycompany.weasis.measure.enhance.MeasureEnhanceFactory
-                        Export-Package: com.mycompany.weasis.measure.enhance.*
+                        Bundle-Activator: com.weasis.plugin.editablepr.EditablePrFactory
+                        Export-Package: com.weasis.plugin.editablepr.*
                         Import-Package: org.slf4j;version=!,*
                         Require-Capability: osgi.ee;filter:="(&amp;(osgi.ee=JavaSE)(version=24))"
                     </bnd>
