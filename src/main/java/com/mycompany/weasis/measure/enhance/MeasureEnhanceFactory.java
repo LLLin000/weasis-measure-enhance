@@ -3,6 +3,8 @@ package com.mycompany.weasis.measure.enhance;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.ArrayList;
+import java.util.Optional;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -12,7 +14,10 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.weasis.core.api.gui.util.ActionW;
+import org.weasis.core.api.gui.util.ComboItemListener;
 import org.weasis.core.api.gui.util.GuiUtils;
+import org.weasis.core.ui.editor.image.ImageViewerEventManager;
 import org.weasis.core.ui.editor.image.ImageViewerPlugin;
 import org.weasis.core.ui.editor.image.MeasureToolBar;
 import org.weasis.core.ui.editor.image.ViewCanvas;
@@ -26,99 +31,192 @@ import org.weasis.dicom.viewer2d.EventManager;
 public class MeasureEnhanceFactory implements BundleActivator {
     private static final Logger LOGGER = LoggerFactory.getLogger(MeasureEnhanceFactory.class);
     
-    private JButton calcAngleButton;
-    private JButton perpBisectorButton;
-    private JButton perpDistanceButton;
-    private JButton parallelLineButton;
-    private Timer retryTimer;
+    private Timer monitorTimer;
+    private boolean toolsRegisteredToStaticList = false;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
         LOGGER.info("Starting Weasis Measure Enhance Plugin");
         
-        // Register tools to MeasureToolBar
-        List<Graphic> measureList = MeasureToolBar.getMeasureGraphicList();
-        if (measureList != null) {
-            safeAddTool(measureList, new CircleCenterToolGraphic());
-            safeAddTool(measureList, new ContinueLineToolGraphic());
-            // PerpendicularBisector added as a toolbar button instead
-        }
-        
-        // Try to add button with retry mechanism
-        retryTimer = new Timer("AngleButtonRetry", true);
-        retryTimer.schedule(new TimerTask() {
-            private int attempts = 0;
+        // Start a continuous monitor timer to handle late-loading viewers and multiple windows
+        monitorTimer = new Timer("MeasureEnhance-Monitor", true);
+        monitorTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                attempts++;
-                if (attempts > 30) { // Give up after 30 seconds
-                    LOGGER.warn("Giving up on adding angle calculation button after {} attempts", attempts);
-                    retryTimer.cancel();
-                    return;
-                }
-                SwingUtilities.invokeLater(() -> {
-                    if (tryAddAngleCalculationButton()) {
-                        retryTimer.cancel();
-                    }
-                });
+                SwingUtilities.invokeLater(() -> updatePluginState());
             }
-        }, 1000, 1000); // Start after 1 second, retry every 1 second
+        }, 2000, 3000); // Check every 3 seconds after 2s delay
+        
+        LOGGER.info("Weasis Measure Enhance Plugin started (monitoring active)");
     }
     
-    private boolean tryAddAngleCalculationButton() {
+    private void updatePluginState() {
         try {
+            // 1. Ensure tools are registered to the static MeasureToolBar list (for future viewers)
+            if (!toolsRegisteredToStaticList) {
+                List<Graphic> measureList = MeasureToolBar.getMeasureGraphicList();
+                if (measureList != null) {
+                    safeAddTool(measureList, new CircleCenterToolGraphic());
+                    safeAddTool(measureList, new ContinueLineToolGraphic());
+                    toolsRegisteredToStaticList = true;
+                    LOGGER.info("Successfully registered tools to static MeasureToolBar list");
+                }
+            }
+
+            // 2. Update all currently open viewers
             List<ViewerPlugin<?>> plugins = GuiUtils.getUICore().getViewerPlugins();
-            for (ViewerPlugin<?> plugin : plugins) {
-                if (plugin instanceof ImageViewerPlugin<?> imagePlugin) {
-                    List<Toolbar> toolBars = imagePlugin.getSeriesViewerUI().getToolBars();
-                    if (toolBars != null) {
-                        for (Toolbar toolbar : toolBars) {
-                            if (toolbar instanceof MeasureToolBar measureToolBar) {
-                                if (calcAngleButton == null) {
-                                    // Add angle calculation button
-                                    calcAngleButton = new JButton("∠");
-                                    calcAngleButton.setToolTipText("Calculate angle between 2 selected lines (Ctrl+Click to multi-select)");
-                                    calcAngleButton.setFont(calcAngleButton.getFont().deriveFont(16f));
-                                    calcAngleButton.addActionListener(e -> onCalcAngleClick());
-                                    measureToolBar.add(calcAngleButton);
-                                    
-                                    // Add perpendicular bisector button
-                                    perpBisectorButton = new JButton("⊥");
-                                    perpBisectorButton.setToolTipText("Draw perpendicular bisector of selected line");
-                                    perpBisectorButton.setFont(perpBisectorButton.getFont().deriveFont(16f));
-                                    perpBisectorButton.addActionListener(e -> onPerpBisectorClick());
-                                    measureToolBar.add(perpBisectorButton);
-                                    
-                                    // Add perpendicular distance measurement button
-                                    perpDistanceButton = new JButton("⊥d");
-                                    perpDistanceButton.setToolTipText("Measure perpendicular distance from a point to selected line");
-                                    perpDistanceButton.setFont(perpDistanceButton.getFont().deriveFont(14f));
-                                    perpDistanceButton.addActionListener(e -> onPerpDistanceClick());
-                                    measureToolBar.add(perpDistanceButton);
-                                    
-                                    // Add parallel line button
-                                    parallelLineButton = new JButton("//");
-                                    parallelLineButton.setToolTipText("Create parallel line from selected line (可拖动调整距离)");
-                                    parallelLineButton.setFont(parallelLineButton.getFont().deriveFont(14f));
-                                    parallelLineButton.addActionListener(e -> onParallelLineClick());
-                                    measureToolBar.add(parallelLineButton);
-                                    
-                                    measureToolBar.revalidate();
-                                    measureToolBar.repaint();
-                                    LOGGER.info("Added all measure enhance buttons to MeasureToolBar");
+            if (plugins != null) {
+                for (ViewerPlugin<?> plugin : plugins) {
+                    if (plugin instanceof ImageViewerPlugin<?> imagePlugin) {
+                        // Register tools to this plugin's event manager
+                        registerToolsToEventManager(imagePlugin);
+
+                        // Add buttons to toolbars
+                        List<Toolbar> toolBars = imagePlugin.getSeriesViewerUI().getToolBars();
+                        if (toolBars != null) {
+                            for (Toolbar toolbar : toolBars) {
+                                if (toolbar instanceof MeasureToolBar measureToolBar) {
+                                    addButtonsToToolbar(measureToolBar);
                                 }
-                                return true;
                             }
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            LOGGER.debug("Retry adding buttons: {}", e.getMessage());
+            LOGGER.debug("Error in monitor cycle: {}", e.getMessage());
+        }
+    }
+
+    private void addButtonsToToolbar(MeasureToolBar toolbar) {
+        boolean changed = false;
+
+        if (!hasButton(toolbar, "∠")) {
+            JButton calcAngleButton = new JButton("∠");
+            calcAngleButton.setToolTipText("Calculate angle between 2 selected lines (Ctrl+Click to multi-select)");
+            calcAngleButton.setFont(calcAngleButton.getFont().deriveFont(16f));
+            calcAngleButton.addActionListener(e -> onCalcAngleClick());
+            toolbar.add(calcAngleButton);
+            changed = true;
+        }
+
+        if (!hasButton(toolbar, "⊥")) {
+            JButton perpBisectorButton = new JButton("⊥");
+            perpBisectorButton.setToolTipText("Draw perpendicular bisector of selected line");
+            perpBisectorButton.setFont(perpBisectorButton.getFont().deriveFont(16f));
+            perpBisectorButton.addActionListener(e -> onPerpBisectorClick());
+            toolbar.add(perpBisectorButton);
+            changed = true;
+        }
+
+        if (!hasButton(toolbar, "⊥d")) {
+            JButton perpDistanceButton = new JButton("⊥d");
+            perpDistanceButton.setToolTipText("Measure perpendicular distance from a point to selected line");
+            perpDistanceButton.setFont(perpDistanceButton.getFont().deriveFont(14f));
+            perpDistanceButton.addActionListener(e -> onPerpDistanceClick());
+            toolbar.add(perpDistanceButton);
+            changed = true;
+        }
+
+        if (!hasButton(toolbar, "//")) {
+            JButton parallelLineButton = new JButton("//");
+            parallelLineButton.setToolTipText("Create parallel line from selected line (可拖动调整距离)");
+            parallelLineButton.setFont(parallelLineButton.getFont().deriveFont(14f));
+            parallelLineButton.addActionListener(e -> onParallelLineClick());
+            toolbar.add(parallelLineButton);
+            changed = true;
+        }
+
+        if (!hasButton(toolbar, "1/3⊥")) {
+            JButton trisectionPerpButton = new JButton("1/3⊥");
+            trisectionPerpButton.setToolTipText("Draw perpendiculars at 1/3 and 2/3 points of selected line");
+            trisectionPerpButton.setFont(trisectionPerpButton.getFont().deriveFont(13f));
+            trisectionPerpButton.addActionListener(e -> onTrisectionPerpClick());
+            toolbar.add(trisectionPerpButton);
+            changed = true;
+        }
+
+        if (changed) {
+            toolbar.revalidate();
+            toolbar.repaint();
+            LOGGER.info("Added measure enhance buttons to a MeasureToolBar instance");
+        }
+    }
+
+    private boolean hasButton(MeasureToolBar toolbar, String text) {
+        for (java.awt.Component c : toolbar.getComponents()) {
+            if (c instanceof JButton b && text.equals(b.getText())) {
+                return true;
+            }
         }
         return false;
     }
     
+    private void registerToolsToEventManager(ImageViewerPlugin<?> imagePlugin) {
+        try {
+            ImageViewerEventManager<?> eventManager = imagePlugin.getEventManager();
+            if (eventManager != null) {
+                Optional<ComboItemListener<Graphic>> actionOpt = eventManager.getAction(ActionW.DRAW_MEASURE);
+                if (actionOpt.isPresent()) {
+                    ComboItemListener<Graphic> action = actionOpt.get();
+                    addToolsToAction(action);
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Failed to register tools to event manager", e);
+        }
+    }
+
+    private void addToolsToAction(ComboItemListener<Graphic> action) {
+        try {
+            Object[] items = action.getAllItem();
+            if (items == null) return;
+
+            List<Graphic> itemList = new ArrayList<>();
+            for (Object item : items) {
+                if (item instanceof Graphic) {
+                    itemList.add((Graphic) item);
+                }
+            }
+            
+            boolean changed = false;
+            
+            // Check and add CircleCenterToolGraphic
+            boolean hasCircle = false;
+            for (Graphic item : itemList) {
+                if (item instanceof CircleCenterToolGraphic) {
+                    hasCircle = true;
+                    break;
+                }
+            }
+            if (!hasCircle) {
+                itemList.add(new CircleCenterToolGraphic());
+                changed = true;
+            }
+            
+            // Check and add ContinueLineToolGraphic
+            boolean hasLine = false;
+            for (Graphic item : itemList) {
+                if (item instanceof ContinueLineToolGraphic) {
+                    hasLine = true;
+                    break;
+                }
+            }
+            if (!hasLine) {
+                itemList.add(new ContinueLineToolGraphic());
+                changed = true;
+            }
+            
+            if (changed) {
+                action.setDataList(itemList.toArray(new Graphic[0]));
+                LOGGER.info("Updated existing viewer with new tools");
+            }
+            
+        } catch (Exception e) {
+            LOGGER.warn("Could not update action tools: {}", e.getMessage());
+        }
+    }
+
     private void onCalcAngleClick() {
         try {
             ViewCanvas<?> view = getActiveViewCanvas();
@@ -172,6 +270,20 @@ public class MeasureEnhanceFactory implements BundleActivator {
         } catch (Exception e) {
             LOGGER.error("Error creating parallel line", e);
             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Create Parallel Line", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void onTrisectionPerpClick() {
+        try {
+            ViewCanvas<?> view = getActiveViewCanvas();
+            if (view != null) {
+                TrisectionPerpendicularAction.drawTrisectionPerpendiculars(view);
+            } else {
+                JOptionPane.showMessageDialog(null, "No active view found.", "Trisection Perpendiculars", JOptionPane.WARNING_MESSAGE);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error drawing trisection perpendiculars", e);
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage(), "Trisection Perpendiculars", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -237,8 +349,8 @@ public class MeasureEnhanceFactory implements BundleActivator {
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
         LOGGER.info("Stopping Weasis Measure Enhance Plugin");
-        if (retryTimer != null) {
-            retryTimer.cancel();
+        if (monitorTimer != null) {
+            monitorTimer.cancel();
         }
     }
 }

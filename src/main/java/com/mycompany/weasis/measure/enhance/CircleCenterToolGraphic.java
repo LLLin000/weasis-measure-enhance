@@ -27,7 +27,7 @@ public class CircleCenterToolGraphic extends ThreePointsCircleGraphic {
                 Path2D path = new Path2D.Double(circle);
                 
                 // Add a cross at the center
-                double crossSize = 2.5; // smaller cross marker
+                double crossSize = 5.0;
                 path.append(new Line2D.Double(centerPt.getX() - crossSize, centerPt.getY(), centerPt.getX() + crossSize, centerPt.getY()), false);
                 path.append(new Line2D.Double(centerPt.getX(), centerPt.getY() - crossSize, centerPt.getX(), centerPt.getY() + crossSize), false);
                 

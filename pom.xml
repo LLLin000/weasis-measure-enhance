@@ -13,7 +13,7 @@
 
     <groupId>com.mycompany</groupId>
     <artifactId>weasis-measure-enhance-fixed</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>Weasis Measure Enhance Plugin (Fixed)</name>
@@ -22,8 +22,8 @@
         <weasis.version>4.6.6-SNAPSHOT</weasis.version>
         <osgi.version>8.0.0</osgi.version>
         <osgi.comp.version>1.5.1</osgi.comp.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>24</maven.compiler.source>
+        <maven.compiler.target>24</maven.compiler.target>
     </properties>
 
     <dependencies>
