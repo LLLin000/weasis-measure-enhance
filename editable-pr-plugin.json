@@ -1,0 +1,11 @@
+{
+  "weasisPreferences": [
+    {
+      "code": "felix.auto.start.200",
+      "value": "file:///D:/L/Weasis-plugin/weasis-editable-pr/target/weasis-editable-pr-1.0.0-SNAPSHOT.jar",
+      "description": "Editable PR Plugin - Makes saved measurements editable",
+      "type": "A",
+      "category": "FELIX_INSTALL"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "weasisPreferences": [
+    {
+      "code": "felix.auto.start.120",
+      "value": "${weasis.codebase.url}/bundle/jogamp-2.6.0.jar.xz ${weasis.codebase.url}/bundle/weasis-dicom-viewer3d-4.6.5.jar.xz file:///D:/L/Weasis-plugin/plugin-update-20260223/weasis-measure-enhance-fixed/target/weasis-measure-enhance-fixed-1.0.1.jar file:///D:/L/Weasis-plugin/plugin-update-20260223/weasis-editable-pr/target/weasis-editable-pr-1.0.0.jar",
+      "description": "DICOM Viewer 3D, JOGL, and Custom Plugins (Fixed)",
+      "type": "A",
+      "category": "FELIX_INSTALL"
+    }
+  ]
+}
