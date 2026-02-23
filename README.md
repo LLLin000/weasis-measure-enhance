@@ -31,6 +31,7 @@ Special thanks to:
 - **Java**: 24
 
 > ⚠️ This plugin is compiled against Weasis 4.6.x APIs. Tested with Weasis 4.6.5 release + JDK 24.
+> Runtime usage only needs an installed Weasis release. Building from source additionally requires a local Weasis source checkout.
 
 ### Installation
 
@@ -40,7 +41,7 @@ The easiest way to install this plugin:
 
 1. Go to [Releases](../../releases) page
 2. Download both:
-   - `weasis-measure-enhance-1.0.0-SNAPSHOT.jar`
+   - `weasis-measure-enhance-fixed-1.0.0.jar`
    - `install-plugin.bat`
 3. Put them in the same folder
 4. Double-click `install-plugin.bat`
@@ -56,7 +57,7 @@ The easiest way to install this plugin:
 #### Method 2: Download Pre-built JAR (Manual Setup)
 
 1. Go to [Releases](../../releases) page
-2. Download `weasis-measure-enhance-1.0.0-SNAPSHOT.jar`
+2. Download `weasis-measure-enhance-fixed-1.0.0.jar`
 3. Follow the "Loading the Plugin" instructions below
 
 #### Method 3: Build from Source
@@ -76,7 +77,7 @@ cd weasis-measure-enhance
 mvn clean package -DskipTests
 ```
 
-The JAR file will be created in `target/weasis-measure-enhance-1.0.0-SNAPSHOT.jar`
+The JAR file will be created in `target/weasis-measure-enhance-fixed-1.0.0.jar`
 
 ### Loading the Plugin
 
@@ -89,7 +90,7 @@ The JAR file will be created in `target/weasis-measure-enhance-1.0.0-SNAPSHOT.ja
   "weasisPreferences": [
     {
       "code": "felix.auto.start.13",
-      "value": "file:///PATH/TO/weasis-measure-enhance-1.0.0-SNAPSHOT.jar",
+      "value": "file:///PATH/TO/weasis-measure-enhance-fixed-1.0.0.jar",
       "description": "Weasis Measure Enhance Plugin"
     }
   ]
@@ -201,6 +202,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 - **Java**: 24
 
 > ⚠️ 本插件基于 Weasis 4.6.x API 编译。已在 Weasis 4.6.5 发行版 + JDK 24 上测试通过。
+> 运行插件只需要安装版 Weasis；从源码编译时才需要额外准备本地 Weasis 源码。
 
 ### 安装方法
 
@@ -210,7 +212,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 1. 访问 [Releases](../../releases) 页面
 2. 下载以下两个文件：
-   - `weasis-measure-enhance-1.0.0-SNAPSHOT.jar`
+   - `weasis-measure-enhance-fixed-1.0.0.jar`
    - `install-plugin.bat`
 3. 把它们放在同一个文件夹里
 4. 双击运行 `install-plugin.bat`
@@ -226,7 +228,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 #### 方法二：下载预编译 JAR（手动配置）
 
 1. 访问 [Releases](../../releases) 页面
-2. 下载 `weasis-measure-enhance-1.0.0-SNAPSHOT.jar`
+2. 下载 `weasis-measure-enhance-fixed-1.0.0.jar`
 3. 按照下方"加载插件"的说明操作
 
 #### 方法三：从源码编译
@@ -246,7 +248,7 @@ cd weasis-measure-enhance
 mvn clean package -DskipTests
 ```
 
-JAR 文件将生成在 `target/weasis-measure-enhance-1.0.0-SNAPSHOT.jar`
+JAR 文件将生成在 `target/weasis-measure-enhance-fixed-1.0.0.jar`
 
 ### 加载插件
 
@@ -259,7 +261,7 @@ JAR 文件将生成在 `target/weasis-measure-enhance-1.0.0-SNAPSHOT.jar`
   "weasisPreferences": [
     {
       "code": "felix.auto.start.13",
-      "value": "file:///你的路径/weasis-measure-enhance-1.0.0-SNAPSHOT.jar",
+      "value": "file:///你的路径/weasis-measure-enhance-fixed-1.0.0.jar",
       "description": "Weasis Measure Enhance Plugin"
     }
   ]

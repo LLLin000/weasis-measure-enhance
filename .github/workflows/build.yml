@@ -15,12 +15,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up JDK 17
+    - name: Set up JDK 24
       uses: actions/setup-java@v4
       with:
-        java-version: '17'
+        java-version: '24'
         distribution: 'temurin'
         cache: maven
+
+    - name: Install Weasis dependencies
+      run: git clone --depth 1 https://github.com/nroduit/Weasis.git && mvn -f Weasis/pom.xml install -DskipTests
     
     - name: Build with Maven
       run: mvn clean package -DskipTests
@@ -28,7 +31,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: weasis-measure-enhance
+        name: weasis-measure-enhance-fixed
         path: target/*.jar
         if-no-files-found: error
 
@@ -40,12 +43,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up JDK 17
+    - name: Set up JDK 24
       uses: actions/setup-java@v4
       with:
-        java-version: '17'
+        java-version: '24'
         distribution: 'temurin'
         cache: maven
+
+    - name: Install Weasis dependencies
+      run: git clone --depth 1 https://github.com/nroduit/Weasis.git && mvn -f Weasis/pom.xml install -DskipTests
     
     - name: Build with Maven
       run: mvn clean package -DskipTests
@@ -58,7 +64,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          target/weasis-measure-enhance-*.jar
+          target/weasis-measure-enhance-fixed-*.jar
         body: |
           ## Weasis Measure Enhance Plugin ${{ steps.get_version.outputs.VERSION }}
           
@@ -70,7 +76,7 @@ jobs:
             "weasisPreferences": [
               {
                 "code": "felix.auto.start.13",
-                "value": "file:///PATH/TO/weasis-measure-enhance-${{ steps.get_version.outputs.VERSION }}.jar",
+                "value": "file:///PATH/TO/weasis-measure-enhance-fixed-1.0.0.jar",
                 "description": "Weasis Measure Enhance Plugin"
               }
             ]

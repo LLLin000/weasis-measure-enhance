@@ -2,7 +2,7 @@
   "weasisPreferences": [
     {
       "code": "felix.auto.start.13",
-      "value": "file:///PATH_TO_PLUGIN/weasis-measure-enhance-1.0.0-SNAPSHOT.jar",
+      "value": "file:///PATH_TO_PLUGIN/weasis-measure-enhance-fixed-1.0.0.jar",
       "description": "Weasis Measure Enhance Plugin - Change PATH_TO_PLUGIN to your actual path"
     }
   ]
